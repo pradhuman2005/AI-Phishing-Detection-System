@@ -1,0 +1,28 @@
+# Environment variables
+.env
+.env.*
+
+# API Keys and credentials
+credentials.json
+client_secret.json
+token.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Build files
+dist/
+build/
+
+# Database
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
