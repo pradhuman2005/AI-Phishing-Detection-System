@@ -1,0 +1,98 @@
+
+.amg-risk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 8px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: 600 11px/1.3 Arial, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2;
+}
+
+.amg-green {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+
+.amg-yellow {
+  color: #854d0e;
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.amg-red {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.amg-risk-badge:hover {
+  filter: brightness(0.96);
+}
+
+#amg-report {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(390px, 92vw);
+  height: 100vh;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.18);
+  z-index: 2147483647;
+  font-family: Arial, sans-serif;
+  overflow-y: auto;
+}
+
+.amg-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  color: #ffffff;
+  background: #172554;
+  font-size: 17px;
+}
+
+#amg-close {
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 27px;
+  cursor: pointer;
+}
+
+.amg-report-body {
+  padding: 22px;
+}
+
+.amg-score {
+  display: inline-flex;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.amg-report-body h2 {
+  margin-bottom: 8px;
+}
+
+.amg-report-body p {
+  color: #64748b;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.amg-report-section {
+  margin-top: 18px;
+  padding: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}

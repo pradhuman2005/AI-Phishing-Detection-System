@@ -1,0 +1,59 @@
+.esc-badge {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 3px 12px;
+  border-radius: 14px;
+  font: 600 12px/1.6 system-ui, sans-serif;
+  color: #fff;
+  cursor: pointer;
+  vertical-align: middle;
+  user-select: none;
+}
+.esc-badge.esc-safe { background: #188038; }
+.esc-badge.esc-suspicious { background: #e37400; }
+.esc-badge.esc-dangerous { background: #d93025; }
+.esc-badge.esc-neutral { background: #5f6368; }
+
+.esc-panel {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  width: 380px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  z-index: 2147483000;
+  background: #fff;
+  color: #202124;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
+  font: 14px/1.5 system-ui, sans-serif;
+}
+.esc-head { padding: 16px; color: #fff; border-radius: 12px 12px 0 0; position: relative; }
+.esc-head.esc-safe { background: #188038; }
+.esc-head.esc-suspicious { background: #e37400; }
+.esc-head.esc-dangerous { background: #d93025; }
+.esc-head.esc-neutral { background: #5f6368; }
+.esc-head h2 { margin: 0 0 4px; font-size: 18px; color: #fff; }
+.esc-head p { margin: 0; font-size: 13px; opacity: 0.95; }
+.esc-close {
+  position: absolute; top: 8px; right: 12px;
+  background: none; border: 0; color: #fff; font-size: 22px; cursor: pointer;
+}
+.esc-bar { height: 6px; background: rgba(255,255,255,0.35); border-radius: 3px; margin-top: 10px; }
+.esc-bar > div { height: 100%; background: #fff; border-radius: 3px; }
+
+.esc-body { padding: 4px 16px 16px; }
+.esc-body h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; color: #5f6368; margin: 16px 0 6px; }
+.esc-body ul { margin: 0; padding-left: 18px; }
+.esc-body li { margin-bottom: 4px; }
+
+.esc-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid #eee; }
+.esc-row span:first-child { font-weight: 600; }
+.esc-ok { color: #188038; }
+.esc-warn { color: #e37400; }
+.esc-bad { color: #d93025; }
+.esc-muted { color: #5f6368; }
+
+.esc-url { font: 12px/1.4 ui-monospace, monospace; word-break: break-all; padding: 6px 0; border-bottom: 1px solid #eee; }
+.esc-note { margin-top: 14px; font-size: 12px; color: #5f6368; }
+.esc-body a { color: #1a73e8; }
