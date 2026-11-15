@@ -1,0 +1,117 @@
+{
+  "element_index": 20,
+  "name": "Save Report to Data Table",
+  "type": "n8n-nodes-base.dataTable",
+  "typeVersion": 1.1,
+  "position": [
+    2800,
+    192
+  ],
+  "parameters": {
+    "dataTableId": {
+      "__rl": true,
+      "value": "zaQ0Lrc5yAbGUKOQ",
+      "mode": "list",
+      "cachedResultName": "email_security_reports",
+      "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+    },
+    "columns": {
+      "mappingMode": "defineBelow",
+      "value": {
+        "email_id": "={{ $('Get a message').first().json.id }}",
+        "subject": "={{ $json.email.subject }}",
+        "report_json": "={{ JSON.stringify($json) }}",
+        "scanned_at": "={{ $json.report_generated_at }}",
+        "risk_score": "={{ $json.risk_score }}",
+        "risk_level": "={{ $json.risk_level }}"
+      },
+      "matchingColumns": [],
+      "schema": [
+        {
+          "id": "email_id",
+          "displayName": "email_id",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "string",
+          "readOnly": false,
+          "removed": false
+        },
+        {
+          "id": "subject",
+          "displayName": "subject",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "string",
+          "readOnly": false,
+          "removed": false
+        },
+        {
+          "id": "risk_score",
+          "displayName": "risk_score",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "number",
+          "readOnly": false,
+          "removed": false
+        },
+        {
+          "id": "risk_level",
+          "displayName": "risk_level",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "string",
+          "readOnly": false,
+          "removed": false
+        },
+        {
+          "id": "report_json",
+          "displayName": "report_json",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "string",
+          "readOnly": false,
+          "removed": false
+        },
+        {
+          "id": "scanned_at",
+          "displayName": "scanned_at",
+          "required": false,
+          "defaultMatch": false,
+          "display": true,
+          "type": "string",
+          "readOnly": false,
+          "removed": false
+        }
+      ],
+      "attemptToConvertTypes": false,
+      "convertFieldsToString": false
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Build Final Security Report": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Send Security Alert Email",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

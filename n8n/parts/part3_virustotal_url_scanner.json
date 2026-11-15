@@ -1,0 +1,174 @@
+{
+  "name": "Part 3: URL Extraction & VirusTotal Threat Intelligence",
+  "part_number": 3,
+  "total_nodes": 5,
+  "node_names": [
+    "Extract URLs From Email",
+    "Check If URLs Found",
+    "VirusTotal URL Lookup",
+    "Normalize VirusTotal URL Results",
+    "Handle No URLs Found"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const gemini = $input.first()?.json || {};\nconst email = $(\"Get a message\").first()?.json || {};\n\n// Combine plain text, html body, and snippet\nconst textSources = [\n  email.textPlain || \"\",\n  email.textHtml || \"\",\n  email.snippet || \"\"\n].join(\"\\n\");\n\n// URL Regex to extract all http/https URLs\nconst urlRegex = /https?:\\/\\/[^\\s<>\"'()\\[\\]{}|\\\\^`]+/gi;\nconst matchedUrls = textSources.match(urlRegex) || [];\n\n// Add any suspicious URLs flagged directly by Gemini\nconst geminiUrls = Array.isArray(gemini.suspicious_urls) ? gemini.suspicious_urls : [];\n\n// Normalize and deduplicate URLs\nconst allCandidates = [...matchedUrls, ...geminiUrls];\nconst validUrls = [...new Set(\n  allCandidates\n    .filter(u => typeof u === \"string\")\n    .map(u => u.trim().replace(/[.,;:]+$/, \"\"))\n    .filter(u => {\n      try {\n        const p = new URL(u);\n        return p.protocol === \"http:\" || p.protocol === \"https:\";\n      } catch {\n        return false;\n      }\n    })\n)];\n\nif (validUrls.length === 0) {\n  return [{\n    json: {\n      has_urls: false,\n      url_count: 0,\n      urls: [],\n      virustotal_lookup_url: null,\n      status: \"No eligible URLs found\"\n    }\n  }];\n}\n\n// For VirusTotal API v3 URL lookup: RFC 4648 base64url encoded without padding\nreturn validUrls.slice(0, 5).map((url, index) => {\n  const urlId = Buffer.from(url, \"utf8\")\n    .toString(\"base64\")\n    .replace(/=+$/, \"\")\n    .replace(/\\+/g, \"-\")\n    .replace(/\\//g, \"_\");\n\n  return {\n    json: {\n      has_urls: true,\n      original_url: url,\n      url_id: urlId,\n      url_index: index,\n      total_urls: validUrls.length,\n      virustotal_lookup_url: `https://www.virustotal.com/api/v3/urls/${urlId}`\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        -176
+      ],
+      "id": "e166a5eb-e1cb-47d5-86e6-02012deb33b0",
+      "name": "Extract URLs From Email"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.virustotal_lookup_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1840,
+        -192
+      ],
+      "id": "e6b25087-deae-4527-bdae-b90c28357c4e",
+      "name": "VirusTotal URL Lookup"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = items.map(item => {\n  const data = item.json;\n  const respData = data.data || {};\n  const attributes = respData.attributes || {};\n  const stats = attributes.last_analysis_stats || {};\n  const origUrl = item.json.original_url || attributes.url || \"Unknown URL\";\n\n  return {\n    original_url: origUrl,\n    url_id: respData.id || item.json.url_id || null,\n    reputation: attributes.reputation ?? 0,\n    analysis_stats: {\n      malicious: stats.malicious ?? 0,\n      suspicious: stats.suspicious ?? 0,\n      harmless: stats.harmless ?? 0,\n      undetected: stats.undetected ?? 0\n    },\n    last_analysis_date: attributes.last_analysis_date\n      ? new Date(attributes.last_analysis_date * 1000).toISOString()\n      : null,\n    report_url: respData.id ? `https://www.virustotal.com/gui/url/${respData.id}` : null\n  };\n});\n\nconst totalMalicious = results.reduce((sum, r) => sum + r.analysis_stats.malicious, 0);\nconst totalSuspicious = results.reduce((sum, r) => sum + r.analysis_stats.suspicious, 0);\n\nreturn [{\n  json: {\n    url_scan_status: totalMalicious > 0 ? \"Malicious\" : (totalSuspicious > 0 ? \"Suspicious\" : \"Clean\"),\n    url_scan_reason: `${results.length} URL(s) scanned via VirusTotal`,\n    url_scan_count: results.length,\n    url_results: results,\n    total_malicious_urls: totalMalicious,\n    total_suspicious_urls: totalSuspicious\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        -240
+      ],
+      "id": "abd34088-2103-465b-a1bb-bd72917acf1c",
+      "name": "Normalize VirusTotal URL Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "73178f35-2433-4b6b-8930-5683fabd44c7",
+              "leftValue": "={{ $json.has_urls }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1648,
+        -160
+      ],
+      "id": "7bbd1902-e4e4-4bfc-9f99-a6c64c959e6a",
+      "name": "Check If URLs Found"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    url_scan_status: \"Skipped\",\n    url_scan_reason: \"No eligible URLs found in this email\",\n    url_scan_count: 0,\n    url_results: [],\n    total_malicious_urls: 0,\n    total_suspicious_urls: 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        -16
+      ],
+      "id": "ad60c143-eada-44c0-98fa-7fb6f52d1b91",
+      "name": "Handle No URLs Found"
+    }
+  ],
+  "connections": {
+    "Extract URLs From Email": {
+      "main": [
+        [
+          {
+            "node": "Check If URLs Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If URLs Found": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal URL Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle No URLs Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VirusTotal URL Lookup": {
+      "main": [
+        [
+          {
+            "node": "Normalize VirusTotal URL Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize VirusTotal URL Results": {
+      "main": [
+        [
+          {
+            "node": "Merge URL and Attachment Scans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle No URLs Found": {
+      "main": [
+        [
+          {
+            "node": "Merge URL and Attachment Scans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

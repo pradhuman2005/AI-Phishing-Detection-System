@@ -1,0 +1,28 @@
+{
+  "element_index": 19,
+  "name": "Webhook",
+  "type": "n8n-nodes-base.webhook",
+  "typeVersion": 2.1,
+  "position": [
+    32,
+    544
+  ],
+  "parameters": {
+    "path": "mail-security-report",
+    "responseMode": "responseNode",
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {},
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Get Report from Data Table",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

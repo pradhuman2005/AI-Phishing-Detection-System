@@ -1,0 +1,187 @@
+:root {
+  --bg-primary: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --phishing: #ef4444;
+  --suspicious: #f59e0b;
+  --safe: #10b981;
+  --accent: #3b82f6;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.dashboard-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.stat-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.stat-card.phishing .stat-value { color: var(--phishing); }
+.stat-card.suspicious .stat-value { color: var(--suspicious); }
+.stat-card.safe .stat-value { color: var(--safe); }
+.stat-card.score .stat-value { color: var(--accent); }
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.table-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+
+.table-card h2 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.threat-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.threat-table th, .threat-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.badge-phishing { background: rgba(239, 68, 68, 0.2); color: var(--phishing); border: 1px solid var(--phishing); }
+.badge-suspicious { background: rgba(245, 158, 11, 0.2); color: var(--suspicious); border: 1px solid var(--suspicious); }
+.badge-safe { background: rgba(16, 185, 129, 0.2); color: var(--safe); border: 1px solid var(--safe); }
+
+.risk-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.risk-num {
+  font-weight: bold;
+  width: 24px;
+}
+
+.risk-bar {
+  height: 6px;
+  background: var(--phishing);
+  border-radius: 3px;
+}
+
+.view-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  border: 1px solid var(--border);
+}
+
+.recommendation-box {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid var(--accent);
+  padding: 10px;
+}
+
+.close-btn {
+  margin-top: 16px;
+  background: #475569;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}

@@ -1,0 +1,34 @@
+{
+  "element_index": 5,
+  "name": "Extract URLs From Email",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    1392,
+    -176
+  ],
+  "parameters": {
+    "jsCode": "const gemini = $input.first()?.json || {};\nconst email = $(\"Get a message\").first()?.json || {};\n\n// Combine plain text, html body, and snippet\nconst textSources = [\n  email.textPlain || \"\",\n  email.textHtml || \"\",\n  email.snippet || \"\"\n].join(\"\\n\");\n\n// URL Regex to extract all http/https URLs\nconst urlRegex = /https?:\\/\\/[^\\s<>\"'()\\[\\]{}|\\\\^`]+/gi;\nconst matchedUrls = textSources.match(urlRegex) || [];\n\n// Add any suspicious URLs flagged directly by Gemini\nconst geminiUrls = Array.isArray(gemini.suspicious_urls) ? gemini.suspicious_urls : [];\n\n// Normalize and deduplicate URLs\nconst allCandidates = [...matchedUrls, ...geminiUrls];\nconst validUrls = [...new Set(\n  allCandidates\n    .filter(u => typeof u === \"string\")\n    .map(u => u.trim().replace(/[.,;:]+$/, \"\"))\n    .filter(u => {\n      try {\n        const p = new URL(u);\n        return p.protocol === \"http:\" || p.protocol === \"https:\";\n      } catch {\n        return false;\n      }\n    })\n)];\n\nif (validUrls.length === 0) {\n  return [{\n    json: {\n      has_urls: false,\n      url_count: 0,\n      urls: [],\n      virustotal_lookup_url: null,\n      status: \"No eligible URLs found\"\n    }\n  }];\n}\n\n// For VirusTotal API v3 URL lookup: RFC 4648 base64url encoded without padding\nreturn validUrls.slice(0, 5).map((url, index) => {\n  const urlId = Buffer.from(url, \"utf8\")\n    .toString(\"base64\")\n    .replace(/=+$/, \"\")\n    .replace(/\\+/g, \"-\")\n    .replace(/\\//g, \"_\");\n\n  return {\n    json: {\n      has_urls: true,\n      original_url: url,\n      url_id: urlId,\n      url_index: index,\n      total_urls: validUrls.length,\n      virustotal_lookup_url: `https://www.virustotal.com/api/v3/urls/${urlId}`\n    }\n  };\n});"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Normalize Gemini Email Analysis": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Check If URLs Found",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

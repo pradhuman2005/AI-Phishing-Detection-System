@@ -1,0 +1,34 @@
+{
+  "element_index": 25,
+  "name": "Format Webhook Response",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    368,
+    544
+  ],
+  "parameters": {
+    "jsCode": "const items = $input.all();\nconst query = $(\"Webhook\").first()?.json?.query || {};\nconst requestedId = query.email_id || query.id || query.thread_id || null;\n\nconst row = items[0]?.json || {};\nconst hasReport = Boolean(row.report_json || row.email_id || (row.risk_score !== undefined && row.risk_score !== null));\n\nif (!hasReport || !row.email_id) {\n  return [{\n    json: {\n      ok: false,\n      found: false,\n      error: \"REPORT_NOT_FOUND\",\n      message: \"No saved security report was found for this email.\",\n      requested_id: requestedId\n    }\n  }];\n}\n\nlet parsedReport = null;\nif (typeof row.report_json === \"string\") {\n  try {\n    parsedReport = JSON.parse(row.report_json);\n  } catch (e) {\n    parsedReport = { raw: row.report_json, error: \"Report JSON parsing failed: \" + e.message };\n  }\n} else if (typeof row.report_json === \"object\" && row.report_json !== null) {\n  parsedReport = row.report_json;\n}\n\nreturn [{\n  json: {\n    ok: true,\n    found: true,\n    email_id: row.email_id,\n    subject: row.subject || parsedReport?.email?.subject || \"No Subject\",\n    risk_score: row.risk_score !== undefined ? Number(row.risk_score) : (parsedReport?.risk_score ?? null),\n    risk_level: row.risk_level || parsedReport?.risk_level || \"Needs Review\",\n    scanned_at: row.scanned_at || parsedReport?.report_generated_at || null,\n    report: parsedReport\n  }\n}];"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Get Report from Data Table": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Respond to Webhook",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

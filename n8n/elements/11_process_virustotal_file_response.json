@@ -1,0 +1,34 @@
+{
+  "element_index": 11,
+  "name": "Process VirusTotal File Response",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    1504,
+    464
+  ],
+  "parameters": {
+    "jsCode": "\nconst response = $input.first().json;\nconst data = response.data ?? response;\nconst attributes = data.attributes ?? {};\nconst stats = attributes.stats ?? {};\n\nreturn [{\n  json: {\n    analysis_id: data.id ?? null,\n    scan_status: attributes.status ?? \"unknown\",\n    scan_date: attributes.date\n      ? new Date(attributes.date * 1000).toISOString()\n      : null,\n    malicious: stats.malicious ?? 0,\n    suspicious: stats.suspicious ?? 0,\n    harmless: stats.harmless ?? 0,\n    undetected: stats.undetected ?? 0,\n    total_engines: Object.keys(attributes.results ?? {}).length,\n    file_analysis: attributes.results ?? {},\n    virus_total_report_url: data.links?.item\n      ? `https://www.virustotal.com/gui/file/${data.id}`\n      : null\n  }\n}];\n"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Check VirusTotal File Analysis": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Fetch VirusTotal File Report",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

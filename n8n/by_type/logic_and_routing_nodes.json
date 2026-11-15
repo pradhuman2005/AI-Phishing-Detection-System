@@ -1,0 +1,92 @@
+{
+  "category": "Routing, Filtering & Merge Logic Nodes",
+  "matched_types": [
+    "n8n-nodes-base.if",
+    "n8n-nodes-base.merge"
+  ],
+  "count": 3,
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2352,
+        192
+      ],
+      "id": "c6bc60dc-694c-4307-a964-af1ca61c0106",
+      "name": "Merge URL and Attachment Scans"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "73178f35-2433-4b6b-8930-5683fabd44c7",
+              "leftValue": "={{ $json.has_urls }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1648,
+        -160
+      ],
+      "id": "7bbd1902-e4e4-4bfc-9f99-a6c64c959e6a",
+      "name": "Check If URLs Found"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c6e96f97-0212-4ca4-950f-508ef19e3f9e",
+              "leftValue": "={{ $json.attachment_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        208
+      ],
+      "id": "8e38e371-4651-43eb-a66f-207b52d41a93",
+      "name": "Check If Attachments Found"
+    }
+  ]
+}

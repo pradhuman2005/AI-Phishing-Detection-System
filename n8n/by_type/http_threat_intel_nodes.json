@@ -1,0 +1,113 @@
+{
+  "category": "VirusTotal HTTP Request Nodes",
+  "matched_types": [
+    "n8n-nodes-base.httpRequest"
+  ],
+  "count": 4,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.virustotal_lookup_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1840,
+        -192
+      ],
+      "id": "e6b25087-deae-4527-bdae-b90c28357c4e",
+      "name": "VirusTotal URL Lookup"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.virustotal.com/api/v3/files",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "attachment_0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        192
+      ],
+      "id": "d881545e-b21c-4af9-8e5a-48485be7f247",
+      "name": "Upload Attachment to VirusTotal"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.links.self }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        208
+      ],
+      "id": "b77ff007-0349-40c3-a0f1-70a032c0de60",
+      "name": "Check VirusTotal File Analysis"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Check VirusTotal File Analysis').item.json.data.links.self }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1696,
+        464
+      ],
+      "id": "e39b544a-9c12-4564-b7a9-509e9c34ef1e",
+      "name": "Fetch VirusTotal File Report"
+    }
+  ]
+}

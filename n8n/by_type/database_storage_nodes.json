@@ -1,0 +1,134 @@
+{
+  "category": "Data Table Persistence Nodes",
+  "matched_types": [
+    "n8n-nodes-base.dataTable"
+  ],
+  "count": 2,
+  "nodes": [
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "zaQ0Lrc5yAbGUKOQ",
+          "mode": "list",
+          "cachedResultName": "email_security_reports",
+          "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_id": "={{ $('Get a message').first().json.id }}",
+            "subject": "={{ $json.email.subject }}",
+            "report_json": "={{ JSON.stringify($json) }}",
+            "scanned_at": "={{ $json.report_generated_at }}",
+            "risk_score": "={{ $json.risk_score }}",
+            "risk_level": "={{ $json.risk_level }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email_id",
+              "displayName": "email_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_score",
+              "displayName": "risk_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_json",
+              "displayName": "report_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "scanned_at",
+              "displayName": "scanned_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2800,
+        192
+      ],
+      "id": "56b1c370-aaf6-4b53-86db-6bdbe5b93f2a",
+      "name": "Save Report to Data Table"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zaQ0Lrc5yAbGUKOQ",
+          "mode": "list",
+          "cachedResultName": "email_security_reports",
+          "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email_id",
+              "keyValue": "={{ $json.query.email_id || $json.query.id || $json.query.thread_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        544
+      ],
+      "id": "d30861bc-cd70-45ca-964a-932f5f283eae",
+      "name": "Get Report from Data Table",
+      "alwaysOutputData": true
+    }
+  ]
+}

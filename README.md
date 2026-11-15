@@ -1,71 +1,106 @@
 # AI-Powered Phishing Detection and Prevention System
 
-An AI-powered cybersecurity system designed to automatically detect phishing, social engineering, and malicious emails using n8n workflow automation, Google Gemini LLMs, threat intelligence, and a Chrome extension.
+An end-to-end cybersecurity system designed to automatically detect phishing, social engineering, malicious attachments, and credential-harvesting emails using **n8n workflow automation**, **Google Gemini LLM**, **VirusTotal v3 Threat Intelligence**, a **FastAPI backend**, a **React security dashboard**, and a **Chrome Extension**.
 
 ---
 
-## 📌 Features
-
-- **Automated Gmail Monitoring**: Event-driven email ingestion via OAuth 2.0.
-- **Deep Email Extraction**: Extracts headers, text/HTML body, and attachments without truncation.
-- **AI Phishing Detection**: Contextual security analysis powered by Google Gemini (Flash) & Groq.
-- **Threat Intelligence**: URL extraction, RFC 4648 encoding, and VirusTotal v3 reputation lookups.
-- **Deterministic Risk Scoring**: Normalized 0–100 threat assessment with clear verdicts (`Safe`, `Suspicious`, `Phishing`).
-- **Chrome Extension (AI Mail Guardian)**: In-inbox visual risk badges and on-demand email scanning.
-- **Automated Academic Progress Reports**: Automated Form-3 weekly PDF reporting via GitHub Actions.
-
----
-
-## 🏗️ Proposed Architecture
+## 📌 Features & Architecture
 
 ```text
-Gmail (Ingestion) ──► n8n Orchestrator ──► Gemini AI Analysis ──► VirusTotal Threat Intel ──► Risk Scoring Engine ──► PostgreSQL / Data Table ──► FastAPI & React Dashboard / Chrome Extension
+Gmail (OAuth 2.0)
+     │
+     ▼
+n8n Orchestration Layer (Port 5678)
+     ├─► Part 1: Raw Ingestion (RFC 822 Headers & Body)
+     ├─► Part 2: Google Gemini AI Semantic Threat Analysis
+     ├─► Part 3: VirusTotal v3 URL Reputation Scanner
+     ├─► Part 4: VirusTotal Attachment & Hash Detonation
+     ├─► Part 5: Deterministic Risk Scoring Engine (0–100)
+     ├─► Part 6: Persistence in Data Table & Automated Email Alerts
+     └─► Part 7: Webhook REST API for Client Ingress
+                 │
+                 ├──► Chrome Extension (Live In-Inbox Risk Badges)
+                 └──► FastAPI Backend ──► React SOC Analyst Dashboard
 ```
 
 ---
 
-## 🚀 First 4 Steps (Core AI Pipeline)
+## 📂 Repository Structure & Modular Breakdown
 
-The foundation of the detection engine is implemented in [`n8n/first_4_steps_workflow.json`](n8n/first_4_steps_workflow.json):
-
-1. **Step 1: Gmail Trigger** (`n8n-nodes-base.gmailTrigger`)
-   - Polls inbox every minute for new emails (`mode: everyMinute`, `simple: false`).
-2. **Step 2: Get a Message** (`n8n-nodes-base.gmail`)
-   - Retrieves full raw RFC 822 email payload (headers, textPlain, textHtml, snippet).
-3. **Step 3: Message a Model** (`@n8n/n8n-nodes-langchain.googleGemini`)
-   - Executes specialized cybersecurity prompt with `models/gemini-2.5-flash` to evaluate sender reputation, urgency, social engineering, and authentication indicators.
-4. **Step 4: Normalize Gemini Email Analysis** (`n8n-nodes-base.code` - JavaScript)
-   - Parses LLM JSON output, strips code fences, validates verdict, clamps risk score (0–100), and outputs clean structured telemetry.
-
-For a detailed visual and architectural walkthrough of these steps and corresponding screenshots, see [`docs/screenshot_details.md`](docs/screenshot_details.md).
-
----
-
-## 📂 Project Structure
+This repository organizes all workflows, standalone scripts, frontend, backend, and documentation into dedicated, isolated directories:
 
 ```text
 AI-Phishing-Detection-System/
 ├── .github/
 │   └── workflows/
-│       └── auto_weekly_report.yml     # Automated Thursday 11:59 PM IST Form-3 report runner
-├── backend/                           # FastAPI backend (planned)
-├── docs/
-│   └── screenshot_details.md          # Technical documentation of implementation screenshots
-├── extension/                         # Chrome Extension (AI Mail Guardian v2)
-│   ├── manifest.json
-│   ├── background.js
-│   ├── content.js
-│   ├── styles.css
-│   ├── Options.html
-│   ├── Options.js
-│   └── icons/
-├── n8n/
-│   ├── first_4_steps_workflow.json    # Verified first 4 steps pipeline
-│   ├── workflows.json                 # Complete n8n production workflow
-│   └── scripts/                       # Modular JavaScript code nodes
-│       ├── normalize_gemini_analysis.js
-│       └── extract_urls_from_email.js
-├── reviews/                           # 3-Month comprehensive project progress reviews
+│       └── auto_weekly_report.yml        # Automated Form-3 weekly PDF reporting (cron)
+│
+├── backend/                              # FastAPI Backend REST API
+│   ├── main.py                           # API endpoints, data models, and mock/DB store
+│   ├── requirements.txt                  # Python dependencies
+│   └── README.md                         # Backend setup and documentation
+│
+├── frontend/                             # React Security Operations Dashboard
+│   ├── src/
+│   │   ├── App.jsx                       # Threat feed, KPI metrics, and inspection modal
+│   │   └── styles/dashboard.css          # SOC Dark theme styling
+│   ├── package.json                      # NPM dependencies (React 18 + Vite)
+│   └── README.md                         # Frontend setup and documentation
+│
+├── extension/                            # Chrome Extension (AI Mail Guardian v2)
+│   ├── manifest.json                     # Manifest V3 extension configuration
+│   ├── background.js                     # Background service worker
+│   ├── content.js                        # In-page Gmail DOM observer & badge injector
+│   ├── styles.css                        # Risk badge visual styles
+│   ├── Options.html & Options.js         # Settings & endpoint configuration
+│   └── icons/                            # Extension icon assets (16px, 48px, 128px)
+│
+├── code/                                 # Standalone Extracted Source Code Modules
+│   ├── 04_normalize_gemini_email_analysis.js
+│   ├── 05_extract_urls_from_email.js
+│   ├── 07_normalize_virustotal_url_results.js
+│   ├── 08_detect_email_attachments.js
+│   ├── 11_process_virustotal_file_response.js
+│   ├── 13_build_final_security_report.js
+│   ├── 15_handle_no_urls_found.js
+│   ├── 17_normalize_attachment_scan_results.js
+│   ├── 24_handle_no_attachments_found.js
+│   ├── 25_format_webhook_response.js
+│   └── README.md                         # Code modules catalog
+│
+├── n8n/                                  # n8n Automation Workflows & JSON in Parts
+│   ├── workflows.json                    # Full unified workflow (all 25 nodes)
+│   ├── first_4_steps_workflow.json       # Dedicated 4-node core AI pipeline
+│   ├── elements/                         # Individual node JSONs (Nodes 01 to 25)
+│   │   ├── 01_gmail_trigger.json
+│   │   ├── 02_message_a_model.json
+│   │   ├── 03_get_a_message.json
+│   │   └── ... (25 element JSON files)
+│   ├── parts/                            # Pipeline stages / functional parts
+│   │   ├── part1_email_ingestion.json
+│   │   ├── part2_gemini_threat_analysis.json
+│   │   ├── part3_virustotal_url_scanner.json
+│   │   ├── part4_virustotal_file_scanner.json
+│   │   ├── part5_risk_scoring_and_report.json
+│   │   ├── part6_datatable_and_alerts.json
+│   │   └── part7_webhook_extension_api.json
+│   ├── by_type/                          # Breakdown by all node types
+│   │   ├── trigger_nodes.json
+│   │   ├── ai_models.json
+│   │   ├── email_service_nodes.json
+│   │   ├── code_nodes.json
+│   │   ├── http_threat_intel_nodes.json
+│   │   ├── logic_and_routing_nodes.json
+│   │   ├── database_storage_nodes.json
+│   │   └── webhook_api_nodes.json
+│   ├── scripts/                          # Exported n8n JavaScript code nodes
+│   └── README.md                         # n8n modular guide
+│
+├── docs/                                 # Technical Architecture & Guides
+│   ├── screenshot_details.md             # Detailed breakdown of implementation screenshots
+│   └── workflow_elements_and_types.md    # Complete reference for all 25 elements & 7 parts
+│
+├── reviews/                              # Comprehensive 3-Month Project Progress Reviews
 │   ├── README.md
 │   ├── project-overview.md
 │   ├── three-month-progress-report.md
@@ -74,22 +109,50 @@ AI-Phishing-Detection-System/
 │   ├── setup-and-troubleshooting.md
 │   ├── testing-and-validation.md
 │   ├── roadmap.md
-│   └── screenshots/                   # Preserved workflow & Docker screenshots
-├── weekly_reports/                    # Generated Form-3 progress evaluation PDFs
-├── docker-compose.yml                 # Containerized n8n deployment
-└── generate_report.py                 # PDF & visual graph report generator
+│   └── screenshots/                      # Preserved screenshots 01 to 05
+│
+├── weekly_reports/                       # Generated Form-3 progress evaluation PDFs
+├── docker-compose.yml                    # Containerized n8n deployment config
+└── generate_report.py                    # Academic PDF & chart report generator
 ```
 
 ---
 
-## 📊 Generating Weekly / Monthly Reports
+## 🚀 Quick Start Guide
 
-To generate the academic Form-3 PDF report locally:
-
+### 1. Launch n8n Workflow Orchestrator
 ```bash
-pip install reportlab matplotlib
+docker compose up -d
+```
+Access the n8n canvas at [http://localhost:5678](http://localhost:5678). Import [`n8n/workflows.json`](n8n/workflows.json) or [`n8n/first_4_steps_workflow.json`](n8n/first_4_steps_workflow.json).
+
+### 2. Launch FastAPI Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+### 3. Launch React Security Dashboard
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 4. Install Chrome Extension
+1. Open Google Chrome and navigate to `chrome://extensions`.
+2. Toggle on **Developer mode** in the top right.
+3. Click **Load unpacked** and select the [`extension/`](extension/) directory.
+
+---
+
+## 📊 Generating Progress Reports
+
+To generate institutional Form-3 PDF reports:
+```bash
 python generate_report.py weekly      # Last 7 days
 python generate_report.py monthly     # Last 30 days
 python generate_report.py final       # Entire project lifecycle
 ```
-Generated reports are archived in `weekly_reports/`.
+PDF reports are stored automatically in [`weekly_reports/`](weekly_reports/).

@@ -1,0 +1,44 @@
+{
+  "element_index": 6,
+  "name": "VirusTotal URL Lookup",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.5,
+  "position": [
+    1840,
+    -192
+  ],
+  "parameters": {
+    "url": "={{ $json.virustotal_lookup_url }}",
+    "sendHeaders": true,
+    "headerParameters": {
+      "parameters": [
+        {
+          "name": "x-apikey",
+          "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+        }
+      ]
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Check If URLs Found": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Normalize VirusTotal URL Results",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

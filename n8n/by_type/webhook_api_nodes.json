@@ -1,0 +1,39 @@
+{
+  "category": "Webhook & Extension Ingress/Response Nodes",
+  "matched_types": [
+    "n8n-nodes-base.webhook",
+    "n8n-nodes-base.respondToWebhook"
+  ],
+  "count": 2,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mail-security-report",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        544
+      ],
+      "id": "6380ac9a-9e7d-4793-a410-a60433179fae",
+      "name": "Webhook",
+      "webhookId": "ac1d4e11-1ae0-4202-beba-6b6ac73941c6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        592,
+        544
+      ],
+      "id": "b3a576a7-7f4d-426f-ad70-f657aadd9240",
+      "name": "Respond to Webhook"
+    }
+  ]
+}

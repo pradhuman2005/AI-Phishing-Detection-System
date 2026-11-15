@@ -1,0 +1,47 @@
+{
+  "element_index": 1,
+  "name": "Gmail Trigger",
+  "type": "n8n-nodes-base.gmailTrigger",
+  "typeVersion": 1.4,
+  "position": [
+    0,
+    16
+  ],
+  "parameters": {
+    "pollTimes": {
+      "item": [
+        {
+          "mode": "everyMinute"
+        }
+      ]
+    },
+    "simple": false,
+    "filters": {},
+    "options": {
+      "downloadAttachments": true
+    }
+  },
+  "credentials": {
+    "gmailOAuth2": {
+      "id": "e0IR2YDsntaBU4Pe",
+      "name": "Gmail account"
+    }
+  },
+  "incoming_connections": {},
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Get a message",
+          "type": "main",
+          "index": 0
+        },
+        {
+          "node": "Detect Email Attachments",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

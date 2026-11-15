@@ -1,0 +1,56 @@
+{
+  "category": "Gmail Email Service Nodes",
+  "matched_types": [
+    "n8n-nodes-base.gmail"
+  ],
+  "count": 2,
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        16
+      ],
+      "id": "52f04e76-a09c-4e6d-be1a-91d572b2960b",
+      "name": "Get a message",
+      "webhookId": "6bdae98e-2d5f-4ea9-aeec-6fc1315c98a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sharmapradhuman390@gmail.com",
+        "subject": "AI Phishing Detection Report",
+        "emailType": "text",
+        "message": "={{ JSON.stringify($json, null, 2) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3248,
+        192
+      ],
+      "id": "b5d685d3-fbc6-4349-bd07-cd5fa3f89980",
+      "name": "Send Security Alert Email",
+      "webhookId": "ae6d5306-59c0-4bf2-a68b-c62309e5ee5d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ]
+}

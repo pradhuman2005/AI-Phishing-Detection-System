@@ -1,0 +1,62 @@
+{
+  "element_index": 14,
+  "name": "Check If URLs Found",
+  "type": "n8n-nodes-base.if",
+  "typeVersion": 2.3,
+  "position": [
+    1648,
+    -160
+  ],
+  "parameters": {
+    "conditions": {
+      "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 3
+      },
+      "conditions": [
+        {
+          "id": "73178f35-2433-4b6b-8930-5683fabd44c7",
+          "leftValue": "={{ $json.has_urls }}",
+          "rightValue": true,
+          "operator": {
+            "type": "boolean",
+            "operation": "equals",
+            "singleValue": true
+          }
+        }
+      ],
+      "combinator": "and"
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Extract URLs From Email": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "VirusTotal URL Lookup",
+          "type": "main",
+          "index": 0
+        }
+      ],
+      [
+        {
+          "node": "Handle No URLs Found",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "element_index": 9,
+  "name": "Upload Attachment to VirusTotal",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.5,
+  "position": [
+    720,
+    192
+  ],
+  "parameters": {
+    "method": "POST",
+    "url": "https://www.virustotal.com/api/v3/files",
+    "sendHeaders": true,
+    "headerParameters": {
+      "parameters": [
+        {
+          "name": "x-apikey",
+          "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+        }
+      ]
+    },
+    "sendBody": true,
+    "contentType": "multipart-form-data",
+    "bodyParameters": {
+      "parameters": [
+        {
+          "parameterType": "formBinaryData",
+          "name": "file",
+          "inputDataFieldName": "attachment_0"
+        }
+      ]
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Check If Attachments Found": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Check VirusTotal File Analysis",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

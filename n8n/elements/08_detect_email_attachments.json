@@ -1,0 +1,34 @@
+{
+  "element_index": 8,
+  "name": "Detect Email Attachments",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    224,
+    208
+  ],
+  "parameters": {
+    "jsCode": "\nconst items = $input.all();\n\nreturn items.map(item => {\n  const binary = item.binary ?? {};\n  const keys = Object.keys(binary);\n\n  const attachments = keys.map(key => ({\n    binary_key: key,\n    file_name: binary[key].fileName ?? key,\n    mime_type: binary[key].mimeType ?? \"application/octet-stream\",\n    file_size: binary[key].fileSize ?? null\n  }));\n\n  return {\n    json: {\n      email_id: item.json.id ?? null,\n      attachment_count: attachments.length,\n      attachments,\n      attachment_status: attachments.length\n        ? \"Ready to scan\"\n        : \"No attachments\"\n    },\n    binary\n  };\n});\n"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Gmail Trigger": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Check If Attachments Found",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

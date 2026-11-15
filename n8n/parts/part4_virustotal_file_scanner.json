@@ -1,0 +1,280 @@
+{
+  "name": "Part 4: Attachment Detection & VirusTotal Malware Analysis",
+  "part_number": 4,
+  "total_nodes": 8,
+  "node_names": [
+    "Detect Email Attachments",
+    "Check If Attachments Found",
+    "Upload Attachment to VirusTotal",
+    "Check VirusTotal File Analysis",
+    "Fetch VirusTotal File Report",
+    "Process VirusTotal File Response",
+    "Normalize Attachment Scan Results",
+    "Handle No Attachments Found"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\n\nreturn items.map(item => {\n  const binary = item.binary ?? {};\n  const keys = Object.keys(binary);\n\n  const attachments = keys.map(key => ({\n    binary_key: key,\n    file_name: binary[key].fileName ?? key,\n    mime_type: binary[key].mimeType ?? \"application/octet-stream\",\n    file_size: binary[key].fileSize ?? null\n  }));\n\n  return {\n    json: {\n      email_id: item.json.id ?? null,\n      attachment_count: attachments.length,\n      attachments,\n      attachment_status: attachments.length\n        ? \"Ready to scan\"\n        : \"No attachments\"\n    },\n    binary\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        208
+      ],
+      "id": "815dcdb6-5e1f-42ff-b688-b4f36d8c5d01",
+      "name": "Detect Email Attachments"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.virustotal.com/api/v3/files",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "attachment_0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        192
+      ],
+      "id": "d881545e-b21c-4af9-8e5a-48485be7f247",
+      "name": "Upload Attachment to VirusTotal"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.links.self }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        208
+      ],
+      "id": "b77ff007-0349-40c3-a0f1-70a032c0de60",
+      "name": "Check VirusTotal File Analysis"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst response = $input.first().json;\nconst data = response.data ?? response;\nconst attributes = data.attributes ?? {};\nconst stats = attributes.stats ?? {};\n\nreturn [{\n  json: {\n    analysis_id: data.id ?? null,\n    scan_status: attributes.status ?? \"unknown\",\n    scan_date: attributes.date\n      ? new Date(attributes.date * 1000).toISOString()\n      : null,\n    malicious: stats.malicious ?? 0,\n    suspicious: stats.suspicious ?? 0,\n    harmless: stats.harmless ?? 0,\n    undetected: stats.undetected ?? 0,\n    total_engines: Object.keys(attributes.results ?? {}).length,\n    file_analysis: attributes.results ?? {},\n    virus_total_report_url: data.links?.item\n      ? `https://www.virustotal.com/gui/file/${data.id}`\n      : null\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        464
+      ],
+      "id": "9be6b351-f907-4d29-a6f3-05da9dfa5667",
+      "name": "Process VirusTotal File Response"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Check VirusTotal File Analysis').item.json.data.links.self }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-apikey",
+              "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1696,
+        464
+      ],
+      "id": "e39b544a-9c12-4564-b7a9-509e9c34ef1e",
+      "name": "Fetch VirusTotal File Report"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst response = $input.first().json;\nconst data = response.data ?? response;\nconst attributes = data.attributes ?? {};\nconst stats = attributes.stats ?? {};\n\nconst fileHash = data.links?.item?.split(\"/files/\")[1] ?? null;\n\nreturn [{\n  json: {\n    attachment_scan_status: attributes.status ?? \"unknown\",\n    attachment_hash: fileHash,\n    attachment_scan_date: attributes.date\n      ? new Date(attributes.date * 1000).toISOString()\n      : null,\n    attachment_stats: {\n      malicious: stats.malicious ?? 0,\n      suspicious: stats.suspicious ?? 0,\n      harmless: stats.harmless ?? 0,\n      undetected: stats.undetected ?? 0\n    },\n    attachment_total_engines: Object.values(\n      attributes.stats ?? {}\n    ).reduce((sum, count) => sum + count, 0),\n    attachment_report_url: fileHash\n      ? `https://www.virustotal.com/gui/file/${fileHash}`\n      : null\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        464
+      ],
+      "id": "7a82f908-6ec2-4a08-b23d-6d61b9731528",
+      "name": "Normalize Attachment Scan Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c6e96f97-0212-4ca4-950f-508ef19e3f9e",
+              "leftValue": "={{ $json.attachment_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        208
+      ],
+      "id": "8e38e371-4651-43eb-a66f-207b52d41a93",
+      "name": "Check If Attachments Found"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn [{\n  json: {\n    attachment_scan_status: \"Skipped\",\n    attachment_scan_reason: \"No attachments found in this email\",\n    attachment_hash: null,\n    attachment_stats: {\n      malicious: 0,\n      suspicious: 0,\n      harmless: 0,\n      undetected: 0\n    },\n    attachment_total_engines: 0,\n    attachment_report_url: null\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        432
+      ],
+      "id": "7f53a836-8e1e-40ed-9cf9-bf22badacbfe",
+      "name": "Handle No Attachments Found"
+    }
+  ],
+  "connections": {
+    "Detect Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "Check If Attachments Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Attachments Found": {
+      "main": [
+        [
+          {
+            "node": "Upload Attachment to VirusTotal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle No Attachments Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Attachment to VirusTotal": {
+      "main": [
+        [
+          {
+            "node": "Check VirusTotal File Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check VirusTotal File Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process VirusTotal File Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch VirusTotal File Report": {
+      "main": [
+        [
+          {
+            "node": "Normalize Attachment Scan Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process VirusTotal File Response": {
+      "main": [
+        [
+          {
+            "node": "Fetch VirusTotal File Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Attachment Scan Results": {
+      "main": [
+        [
+          {
+            "node": "Merge URL and Attachment Scans",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Handle No Attachments Found": {
+      "main": [
+        [
+          {
+            "node": "Merge URL and Attachment Scans",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

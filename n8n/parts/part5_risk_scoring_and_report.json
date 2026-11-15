@@ -1,0 +1,63 @@
+{
+  "name": "Part 5: Multi-Vector Scan Merging & Deterministic Risk Scoring",
+  "part_number": 5,
+  "total_nodes": 2,
+  "node_names": [
+    "Merge URL and Attachment Scans",
+    "Build Final Security Report"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2352,
+        192
+      ],
+      "id": "c6bc60dc-694c-4307-a964-af1ca61c0106",
+      "name": "Merge URL and Attachment Scans"
+    },
+    {
+      "parameters": {
+        "jsCode": "const merged = $input.first()?.json ?? {};\nconst ai = $(\"Normalize Gemini Email Analysis\").first()?.json ?? {};\nconst email = $(\"Get a message\").first()?.json ?? {};\n\n// 1. Gemini Risk Assessment\nlet geminiScore = Number(ai.risk_score);\nconst hasGeminiScore = Number.isFinite(geminiScore);\nif (hasGeminiScore) {\n  geminiScore = Math.max(0, Math.min(100, Math.round(geminiScore)));\n}\n\n// 2. URL Scan Results\nconst urlResults = Array.isArray(merged.url_results) ? merged.url_results : [];\nconst urlMalicious = urlResults.reduce((sum, r) => sum + (r.analysis_stats?.malicious || 0), 0);\nconst urlSuspicious = urlResults.reduce((sum, r) => sum + (r.analysis_stats?.suspicious || 0), 0);\nconst urlStatus = merged.url_scan_status || (urlResults.length > 0 ? \"Completed\" : \"Skipped\");\n\n// 3. Attachment Scan Results\nconst attachStats = merged.attachment_stats || {\n  malicious: merged.malicious ?? 0,\n  suspicious: merged.suspicious ?? 0,\n  harmless: merged.harmless ?? 0,\n  undetected: merged.undetected ?? 0\n};\nconst attachMalicious = attachStats.malicious || 0;\nconst attachSuspicious = attachStats.suspicious || 0;\nconst attachStatus = merged.attachment_scan_status || merged.scan_status || \"Unknown\";\n\n// 4. Authentication Signals (SPF/DKIM/DMARC)\nconst authResults = String(\n  email.headers?.[\"authentication-results\"] ||\n  email[\"authentication-results\"] ||\n  \"\"\n).toLowerCase();\n\nconst dkimPass = authResults.includes(\"dkim=pass\");\nconst spfPass = authResults.includes(\"spf=pass\");\nconst dmarcPass = authResults.includes(\"dmarc=pass\");\nconst authFail =\n  authResults.includes(\"dkim=fail\") ||\n  authResults.includes(\"spf=fail\") ||\n  authResults.includes(\"dmarc=fail\");\n\n// 5. Multi-factor Explainable Risk Scoring (0 - 100)\nlet score = 0;\nconst scoreBreakdown = [];\n\n// A. AI Content Analysis (up to 50 pts)\nif (hasGeminiScore) {\n  const aiContribution = Math.round(geminiScore * 0.5);\n  score += aiContribution;\n  scoreBreakdown.push(`Gemini AI content risk analysis (${geminiScore}/100): +${aiContribution} pts`);\n} else {\n  score += 30;\n  scoreBreakdown.push(\"Gemini AI content analysis unavailable: default +30 pts baseline\");\n}\n\n// B. VirusTotal Attachment Threat Intel (up to 45 pts)\nif (attachMalicious > 0) {\n  const attachPoints = Math.min(45, attachMalicious * 20);\n  score += attachPoints;\n  scoreBreakdown.push(`Malicious attachment flagged by ${attachMalicious} engine(s): +${attachPoints} pts`);\n} else if (attachSuspicious > 0) {\n  const suspPoints = Math.min(20, attachSuspicious * 10);\n  score += suspPoints;\n  scoreBreakdown.push(`Suspicious attachment flagged by ${attachSuspicious} engine(s): +${suspPoints} pts`);\n}\n\n// C. VirusTotal URL Threat Intel (up to 40 pts)\nif (urlMalicious > 0) {\n  const urlPoints = Math.min(40, urlMalicious * 15);\n  score += urlPoints;\n  scoreBreakdown.push(`Malicious URL(s) flagged by ${urlMalicious} engine(s): +${urlPoints} pts`);\n} else if (urlSuspicious > 0) {\n  const suspUrlPoints = Math.min(20, urlSuspicious * 8);\n  score += suspUrlPoints;\n  scoreBreakdown.push(`Suspicious URL(s) flagged by ${urlSuspicious} engine(s): +${suspUrlPoints} pts`);\n}\n\n// D. Authentication Verification Signal\nif (authFail) {\n  score += 15;\n  scoreBreakdown.push(\"Email authentication check failed (SPF/DKIM/DMARC fail): +15 pts\");\n} else if (dkimPass && spfPass && score > 10 && attachMalicious === 0 && urlMalicious === 0) {\n  score = Math.max(0, score - 10);\n  scoreBreakdown.push(\"Verified sender domain (SPF and DKIM pass): -10 pts credit\");\n}\n\n// Clamp final score to 0..100\nscore = Math.max(0, Math.min(100, Math.round(score)));\n\n// E. Classification based on user's exact specification\nlet level = \"Needs Review\";\nif (!hasGeminiScore && urlStatus === \"Skipped\" && attachStatus === \"Skipped\") {\n  level = \"Scan Incomplete\";\n} else if (score <= 25) {\n  level = \"Low Risk\";\n} else if (score <= 50) {\n  level = \"Moderate Risk\";\n} else if (score <= 75) {\n  level = \"High Risk\";\n} else {\n  level = \"Critical\";\n}\n\n// 6. Summary and Recommendations\nconst summary =\n  ai.summary ??\n  ai.analysis ??\n  (Array.isArray(ai.reasons) && ai.reasons.length > 0 ? ai.reasons.join(\". \") : (ai.raw_response || \"Analysis complete.\"));\n\nconst recommendations =\n  Array.isArray(ai.recommendations) && ai.recommendations.length > 0\n    ? ai.recommendations\n    : score >= 51\n      ? [\"Do not click any links or download attachments from this email.\", \"Report this email as phishing.\", \"Delete or quarantine the message immediately.\"]\n      : score >= 26\n        ? [\"Verify sender address before replying or acting on requests.\", \"Check links carefully before clicking.\"]\n        : [\"No immediate threats detected. Remain cautious with unsolicited requests.\"];\n\n// 7. Output Final Report\nreturn [{\n  json: {\n    report_generated_at: new Date().toISOString(),\n\n    email: {\n      email_id: email.id ?? null,\n      thread_id: email.threadId ?? null,\n      sender: email.from?.text ?? email.from ?? email.headers?.from ?? \"Unknown sender\",\n      subject: email.subject ?? email.headers?.subject ?? \"No Subject\",\n      received_at: email.date ?? email.headers?.date ?? new Date().toISOString()\n    },\n\n    risk_score: score,\n    risk_level: level,\n    score_breakdown: scoreBreakdown,\n\n    ai_analysis: {\n      classification: ai.classification ?? level,\n      summary,\n      reasons: Array.isArray(ai.reasons) ? ai.reasons : [],\n      recommendations,\n      raw_response: ai.raw_response ?? \"\"\n    },\n\n    url_scan: {\n      status: urlStatus,\n      reason: merged.url_scan_reason ?? (urlResults.length > 0 ? \"Scanned via VirusTotal\" : \"No URLs eligible for scan\"),\n      url_count: urlResults.length,\n      results: urlResults\n    },\n\n    attachment_scan: {\n      status: attachStatus,\n      reason: merged.attachment_scan_reason ?? (attachStatus === \"Skipped\" ? \"No attachments found\" : \"Analyzed via VirusTotal\"),\n      hash: merged.attachment_hash ?? null,\n      stats: attachStats,\n      total_engines: merged.attachment_total_engines ?? merged.total_engines ?? 0,\n      report_url: merged.attachment_report_url ?? merged.virus_total_report_url ?? null\n    },\n\n    note: \"AI risk scores are estimates. Skipped or incomplete scans do not establish that an email is safe. Percentage values represent system risk scores, not a statistical probability of phishing.\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        192
+      ],
+      "id": "01617beb-a6f4-44c5-84e6-20ae81238711",
+      "name": "Build Final Security Report"
+    }
+  ],
+  "connections": {
+    "Merge URL and Attachment Scans": {
+      "main": [
+        [
+          {
+            "node": "Build Final Security Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Final Security Report": {
+      "main": [
+        [
+          {
+            "node": "Save Report to Data Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

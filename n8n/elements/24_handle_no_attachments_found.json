@@ -1,0 +1,34 @@
+{
+  "element_index": 24,
+  "name": "Handle No Attachments Found",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    704,
+    432
+  ],
+  "parameters": {
+    "jsCode": "\nreturn [{\n  json: {\n    attachment_scan_status: \"Skipped\",\n    attachment_scan_reason: \"No attachments found in this email\",\n    attachment_hash: null,\n    attachment_stats: {\n      malicious: 0,\n      suspicious: 0,\n      harmless: 0,\n      undetected: 0\n    },\n    attachment_total_engines: 0,\n    attachment_report_url: null\n  }\n}];\n"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Check If Attachments Found": [
+      {
+        "type": "main",
+        "groupIndex": 1,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Merge URL and Attachment Scans",
+          "type": "main",
+          "index": 1
+        }
+      ]
+    ]
+  }
+}

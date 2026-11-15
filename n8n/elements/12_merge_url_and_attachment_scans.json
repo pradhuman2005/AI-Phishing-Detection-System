@@ -1,0 +1,57 @@
+{
+  "element_index": 12,
+  "name": "Merge URL and Attachment Scans",
+  "type": "n8n-nodes-base.merge",
+  "typeVersion": 3.2,
+  "position": [
+    2352,
+    192
+  ],
+  "parameters": {
+    "mode": "combine",
+    "combineBy": "combineByPosition",
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Normalize VirusTotal URL Results": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ],
+    "Normalize Attachment Scan Results": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 1
+      }
+    ],
+    "Handle No URLs Found": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ],
+    "Handle No Attachments Found": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 1
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Build Final Security Report",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

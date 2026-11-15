@@ -1,0 +1,119 @@
+{
+  "name": "Part 7: Webhook Ingress & Chrome Extension API",
+  "part_number": 7,
+  "total_nodes": 4,
+  "node_names": [
+    "Webhook",
+    "Get Report from Data Table",
+    "Format Webhook Response",
+    "Respond to Webhook"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mail-security-report",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        544
+      ],
+      "id": "6380ac9a-9e7d-4793-a410-a60433179fae",
+      "name": "Webhook",
+      "webhookId": "ac1d4e11-1ae0-4202-beba-6b6ac73941c6"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zaQ0Lrc5yAbGUKOQ",
+          "mode": "list",
+          "cachedResultName": "email_security_reports",
+          "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email_id",
+              "keyValue": "={{ $json.query.email_id || $json.query.id || $json.query.thread_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        544
+      ],
+      "id": "d30861bc-cd70-45ca-964a-932f5f283eae",
+      "name": "Get Report from Data Table",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        592,
+        544
+      ],
+      "id": "b3a576a7-7f4d-426f-ad70-f657aadd9240",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst query = $(\"Webhook\").first()?.json?.query || {};\nconst requestedId = query.email_id || query.id || query.thread_id || null;\n\nconst row = items[0]?.json || {};\nconst hasReport = Boolean(row.report_json || row.email_id || (row.risk_score !== undefined && row.risk_score !== null));\n\nif (!hasReport || !row.email_id) {\n  return [{\n    json: {\n      ok: false,\n      found: false,\n      error: \"REPORT_NOT_FOUND\",\n      message: \"No saved security report was found for this email.\",\n      requested_id: requestedId\n    }\n  }];\n}\n\nlet parsedReport = null;\nif (typeof row.report_json === \"string\") {\n  try {\n    parsedReport = JSON.parse(row.report_json);\n  } catch (e) {\n    parsedReport = { raw: row.report_json, error: \"Report JSON parsing failed: \" + e.message };\n  }\n} else if (typeof row.report_json === \"object\" && row.report_json !== null) {\n  parsedReport = row.report_json;\n}\n\nreturn [{\n  json: {\n    ok: true,\n    found: true,\n    email_id: row.email_id,\n    subject: row.subject || parsedReport?.email?.subject || \"No Subject\",\n    risk_score: row.risk_score !== undefined ? Number(row.risk_score) : (parsedReport?.risk_score ?? null),\n    risk_level: row.risk_level || parsedReport?.risk_level || \"Needs Review\",\n    scanned_at: row.scanned_at || parsedReport?.report_generated_at || null,\n    report: parsedReport\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        544
+      ],
+      "id": "c1f8d42a-7e3b-4c59-b901-e2a64c781190",
+      "name": "Format Webhook Response"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Report from Data Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Report from Data Table": {
+      "main": [
+        [
+          {
+            "node": "Format Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Webhook Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

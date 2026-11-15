@@ -1,0 +1,24 @@
+{
+  "element_index": 22,
+  "name": "Respond to Webhook",
+  "type": "n8n-nodes-base.respondToWebhook",
+  "typeVersion": 1.5,
+  "position": [
+    592,
+    544
+  ],
+  "parameters": {
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Format Webhook Response": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {}
+}

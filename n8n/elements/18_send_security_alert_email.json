@@ -1,0 +1,33 @@
+{
+  "element_index": 18,
+  "name": "Send Security Alert Email",
+  "type": "n8n-nodes-base.gmail",
+  "typeVersion": 2.2,
+  "position": [
+    3248,
+    192
+  ],
+  "parameters": {
+    "sendTo": "sharmapradhuman390@gmail.com",
+    "subject": "AI Phishing Detection Report",
+    "emailType": "text",
+    "message": "={{ JSON.stringify($json, null, 2) }}",
+    "options": {}
+  },
+  "credentials": {
+    "gmailOAuth2": {
+      "id": "e0IR2YDsntaBU4Pe",
+      "name": "Gmail account"
+    }
+  },
+  "incoming_connections": {
+    "Save Report to Data Table": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {}
+}

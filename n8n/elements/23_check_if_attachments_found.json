@@ -1,0 +1,61 @@
+{
+  "element_index": 23,
+  "name": "Check If Attachments Found",
+  "type": "n8n-nodes-base.if",
+  "typeVersion": 2.3,
+  "position": [
+    448,
+    208
+  ],
+  "parameters": {
+    "conditions": {
+      "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 3
+      },
+      "conditions": [
+        {
+          "id": "c6e96f97-0212-4ca4-950f-508ef19e3f9e",
+          "leftValue": "={{ $json.attachment_count }}",
+          "rightValue": 0,
+          "operator": {
+            "type": "number",
+            "operation": "gt"
+          }
+        }
+      ],
+      "combinator": "and"
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Detect Email Attachments": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Upload Attachment to VirusTotal",
+          "type": "main",
+          "index": 0
+        }
+      ],
+      [
+        {
+          "node": "Handle No Attachments Found",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

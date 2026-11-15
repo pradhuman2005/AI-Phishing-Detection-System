@@ -1,0 +1,44 @@
+{
+  "element_index": 16,
+  "name": "Fetch VirusTotal File Report",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.5,
+  "position": [
+    1696,
+    464
+  ],
+  "parameters": {
+    "url": "={{ $('Check VirusTotal File Analysis').item.json.data.links.self }}",
+    "sendHeaders": true,
+    "headerParameters": {
+      "parameters": [
+        {
+          "name": "x-apikey",
+          "value": "cd936fc9582a589d6544d4d40e4d7d52778f06977903828d19c042f5430e2dcd"
+        }
+      ]
+    },
+    "options": {}
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Process VirusTotal File Response": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Normalize Attachment Scan Results",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "category": "Event Trigger Nodes",
+  "matched_types": [
+    "n8n-nodes-base.gmailTrigger"
+  ],
+  "count": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        16
+      ],
+      "id": "355a2180-62d3-4e17-9869-f747e40bebaa",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ]
+}

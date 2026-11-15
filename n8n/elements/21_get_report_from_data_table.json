@@ -1,0 +1,49 @@
+{
+  "element_index": 21,
+  "name": "Get Report from Data Table",
+  "type": "n8n-nodes-base.dataTable",
+  "typeVersion": 1.1,
+  "position": [
+    256,
+    544
+  ],
+  "parameters": {
+    "operation": "get",
+    "dataTableId": {
+      "__rl": true,
+      "value": "zaQ0Lrc5yAbGUKOQ",
+      "mode": "list",
+      "cachedResultName": "email_security_reports",
+      "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+    },
+    "filters": {
+      "conditions": [
+        {
+          "keyName": "email_id",
+          "keyValue": "={{ $json.query.email_id || $json.query.id || $json.query.thread_id }}"
+        }
+      ]
+    }
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Webhook": [
+      {
+        "type": "main",
+        "groupIndex": 0,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Format Webhook Response",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

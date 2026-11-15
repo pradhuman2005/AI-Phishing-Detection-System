@@ -1,0 +1,93 @@
+{
+  "name": "Part 1: Email Ingestion & Message Fetching",
+  "part_number": 1,
+  "total_nodes": 2,
+  "node_names": [
+    "Gmail Trigger",
+    "Get a message"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        16
+      ],
+      "id": "355a2180-62d3-4e17-9869-f747e40bebaa",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        16
+      ],
+      "id": "52f04e76-a09c-4e6d-be1a-91d572b2960b",
+      "name": "Get a message",
+      "webhookId": "6bdae98e-2d5f-4ea9-aeec-6fc1315c98a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Detect Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

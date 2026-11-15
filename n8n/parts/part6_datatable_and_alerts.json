@@ -1,0 +1,144 @@
+{
+  "name": "Part 6: Storage Persistence & Security Email Alerts",
+  "part_number": 6,
+  "total_nodes": 2,
+  "node_names": [
+    "Save Report to Data Table",
+    "Send Security Alert Email"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "sharmapradhuman390@gmail.com",
+        "subject": "AI Phishing Detection Report",
+        "emailType": "text",
+        "message": "={{ JSON.stringify($json, null, 2) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3248,
+        192
+      ],
+      "id": "b5d685d3-fbc6-4349-bd07-cd5fa3f89980",
+      "name": "Send Security Alert Email",
+      "webhookId": "ae6d5306-59c0-4bf2-a68b-c62309e5ee5d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e0IR2YDsntaBU4Pe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "zaQ0Lrc5yAbGUKOQ",
+          "mode": "list",
+          "cachedResultName": "email_security_reports",
+          "cachedResultUrl": "/projects/Oeee5pqCSXB2Kx97/datatables/zaQ0Lrc5yAbGUKOQ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_id": "={{ $('Get a message').first().json.id }}",
+            "subject": "={{ $json.email.subject }}",
+            "report_json": "={{ JSON.stringify($json) }}",
+            "scanned_at": "={{ $json.report_generated_at }}",
+            "risk_score": "={{ $json.risk_score }}",
+            "risk_level": "={{ $json.risk_level }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email_id",
+              "displayName": "email_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_score",
+              "displayName": "risk_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "risk_level",
+              "displayName": "risk_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_json",
+              "displayName": "report_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "scanned_at",
+              "displayName": "scanned_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2800,
+        192
+      ],
+      "id": "56b1c370-aaf6-4b53-86db-6bdbe5b93f2a",
+      "name": "Save Report to Data Table"
+    }
+  ],
+  "connections": {
+    "Save Report to Data Table": {
+      "main": [
+        [
+          {
+            "node": "Send Security Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

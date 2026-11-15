@@ -1,0 +1,34 @@
+{
+  "element_index": 15,
+  "name": "Handle No URLs Found",
+  "type": "n8n-nodes-base.code",
+  "typeVersion": 2,
+  "position": [
+    1840,
+    -16
+  ],
+  "parameters": {
+    "jsCode": "return [{\n  json: {\n    url_scan_status: \"Skipped\",\n    url_scan_reason: \"No eligible URLs found in this email\",\n    url_scan_count: 0,\n    url_results: [],\n    total_malicious_urls: 0,\n    total_suspicious_urls: 0\n  }\n}];"
+  },
+  "credentials": {},
+  "incoming_connections": {
+    "Check If URLs Found": [
+      {
+        "type": "main",
+        "groupIndex": 1,
+        "targetIndex": 0
+      }
+    ]
+  },
+  "outgoing_connections": {
+    "main": [
+      [
+        {
+          "node": "Merge URL and Attachment Scans",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}
